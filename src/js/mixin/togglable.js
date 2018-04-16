@@ -136,7 +136,7 @@ export default {
 
             return promise.then(() => {
                 trigger(el, show ? 'shown' : 'hidden', [this]);
-                UIkit.update(null, el);
+                UIkit.update(el);
             });
         },
 
@@ -146,16 +146,19 @@ export default {
                 return;
             }
 
+            let changed;
             if (this.cls) {
-                toggleClass(el, this.cls, includes(this.cls, ' ') ? undefined : toggled);
+                changed = includes(this.cls, ' ') || Boolean(toggled) !== hasClass(el, this.cls);
+                changed && toggleClass(el, this.cls, includes(this.cls, ' ') ? undefined : toggled);
             } else {
-                attr(el, 'hidden', !toggled ? '' : null);
+                changed = Boolean(toggled) === hasAttr(el, 'hidden');
+                changed && attr(el, 'hidden', !toggled ? '' : null);
             }
 
             $$('[autofocus]', el).some(el => isVisible(el) && (el.focus() || true));
 
             this.updateAria(el);
-            UIkit.update(null, el);
+            changed && UIkit.update(el);
         },
 
         _toggleImmediate(el, show) {
